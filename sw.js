@@ -2,7 +2,7 @@
    HTML = network-first (เปิดแอปตอนมีเน็ต ได้ตัวล่าสุดเสมอ ไม่ค้าง cache เก่า)
    asset อื่น (icon/manifest) = cache-first
    offline = ใช้ index.html ที่ cache ไว้ */
-const CACHE = 'runcoach-v5';
+const CACHE = 'runcoach-v6';
 const ASSETS = [
   './',
   './index.html',
