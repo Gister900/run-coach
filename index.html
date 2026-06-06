@@ -27,21 +27,29 @@
     --accent:var(--z2);
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
+  html,body{height:100%;overflow:hidden;overscroll-behavior:none}
   body{
     font-family:'IBM Plex Sans Thai',sans-serif;
     background:
       radial-gradient(1200px 600px at 50% -10%, rgba(255,255,255,.04), transparent 60%),
       linear-gradient(180deg,var(--bg2),var(--bg) 55%);
     color:var(--txt);
-    overflow-x:hidden;
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    overscroll-behavior:none;
+    touch-action:manipulation;
     -webkit-font-smoothing:antialiased;
+    /* เว้นที่ให้ status bar / notch / home indicator ครบทุกด้าน */
+    padding-top:env(safe-area-inset-top);
     padding-bottom:env(safe-area-inset-bottom);
+    padding-left:env(safe-area-inset-left);
+    padding-right:env(safe-area-inset-right);
   }
   .num{font-family:'Kanit',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
   .head{font-family:'Kanit',sans-serif}
 
-  .wrap{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:14px 14px 22px}
+  .wrap{max-width:520px;margin:0 auto;height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:flex;flex-direction:column;padding:14px 14px 22px}
 
   /* top bar */
   .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
@@ -495,6 +503,11 @@ function load(){
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
 }
+
+/* ---------- ล็อกจอ: กัน pinch-zoom (iOS Safari เพิกเฉย user-scalable=no) ---------- */
+['gesturestart','gesturechange','gestureend'].forEach(ev=>
+  document.addEventListener(ev, e=>e.preventDefault(), {passive:false})
+);
 
 /* ---------- init ---------- */
 (function(){ load(); loadDay(); })();

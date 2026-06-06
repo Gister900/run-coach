@@ -1,5 +1,5 @@
 /* RUN COACH — service worker (offline-first สำหรับ static app) */
-const CACHE = 'runcoach-v1';
+const CACHE = 'runcoach-v2';
 const ASSETS = [
   './',
   './index.html',
