@@ -1,5 +1,8 @@
-/* RUN COACH — service worker (offline-first สำหรับ static app) */
-const CACHE = 'runcoach-v2';
+/* RUN COACH — service worker
+   HTML = network-first (เปิดแอปตอนมีเน็ต ได้ตัวล่าสุดเสมอ ไม่ค้าง cache เก่า)
+   asset อื่น (icon/manifest) = cache-first
+   offline = ใช้ index.html ที่ cache ไว้ */
+const CACHE = 'runcoach-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -20,17 +23,33 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-/* cache-first; เน็ตหลุดก็ยังเปิดได้. ไฟล์ฟอนต์ Google โหลดจากเน็ตเมื่อมี แล้ว cache ไว้ */
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
+  const req = e.request;
+  if (req.method !== 'GET') return;
+
+  // หน้าเว็บ / navigation → network-first (กัน cache ค้างของเก่า)
+  if (req.mode === 'navigate' || req.destination === 'document') {
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put('./index.html', copy)).catch(() => {});
+          return res;
+        })
+        .catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
+
+  // asset อื่น → cache-first แล้วค่อยเติม cache
   e.respondWith(
-    caches.match(e.request).then((hit) => {
-      if (hit) return hit;
-      return fetch(e.request).then((res) => {
+    caches.match(req).then((hit) =>
+      hit ||
+      fetch(req).then((res) => {
         const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
         return res;
-      }).catch(() => caches.match('./index.html'));
-    })
+      })
+    )
   );
 });
