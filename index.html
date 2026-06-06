@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RUN COACH">
+<meta name="theme-color" content="#0a0d12">
+<meta name="mobile-web-app-capable" content="yes">
+<title>RUN COACH · ลู่วิ่ง 8 สัปดาห์</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d12;
+    --bg2:#12161f;
+    --card:#161b26;
+    --line:#252c3a;
+    --txt:#e8edf5;
+    --dim:#7b8699;
+    --z1:#22d3ee; --z2:#a3e635; --z3:#fbbf24; --z4:#fb923c; --z5:#f43f5e; --prep:#94a3b8;
+    --accent:var(--z2);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'IBM Plex Sans Thai',sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(255,255,255,.04), transparent 60%),
+      linear-gradient(180deg,var(--bg2),var(--bg) 55%);
+    color:var(--txt);
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .num{font-family:'Kanit',sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .head{font-family:'Kanit',sans-serif}
+
+  .wrap{max-width:520px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:14px 14px 22px}
+
+  /* top bar */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+  .brand{display:flex;flex-direction:column;line-height:1}
+  .brand b{font-family:'Kanit';font-weight:800;font-size:18px;letter-spacing:.5px}
+  .brand span{font-size:11px;color:var(--dim);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+  .iconbtn{background:var(--card);border:1px solid var(--line);color:var(--txt);width:40px;height:40px;border-radius:12px;font-size:18px;display:grid;place-items:center;cursor:pointer}
+  .iconbtn:active{transform:scale(.94)}
+
+  /* selectors */
+  .scroller{display:flex;gap:7px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+  .scroller::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;background:var(--card);border:1px solid var(--line);color:var(--dim);
+    padding:7px 13px;border-radius:999px;font-family:'Kanit';font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap}
+  .chip.on{color:#0a0d12;background:var(--txt);border-color:var(--txt)}
+  .label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin:10px 2px 5px;font-weight:600}
+
+  .daygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .day{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 4px;text-align:center;cursor:pointer;position:relative;overflow:hidden}
+  .day .dot{width:7px;height:7px;border-radius:50%;margin:0 auto 5px}
+  .day .dn{font-size:10px;color:var(--dim);font-weight:600}
+  .day .dt{font-family:'Kanit';font-weight:600;font-size:11.5px;margin-top:2px;line-height:1.1}
+  .day.on{border-color:var(--accent);background:linear-gradient(180deg,rgba(255,255,255,.05),transparent)}
+  .day.on::before{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1.5px var(--accent);border-radius:12px}
+
+  /* main stage */
+  .stage{flex:1;display:flex;flex-direction:column;justify-content:center;margin-top:14px}
+  .card{
+    background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,0));
+    border:1px solid var(--line);border-radius:24px;padding:22px 18px 20px;position:relative;overflow:hidden;
+    box-shadow:0 0 0 1px rgba(0,0,0,.4), 0 30px 60px -30px rgba(0,0,0,.8);
+    transition:box-shadow .4s;
+  }
+  .card::after{content:"";position:absolute;inset:0;border-radius:24px;pointer-events:none;
+    box-shadow:inset 0 0 90px -30px var(--accent);opacity:.9;transition:box-shadow .4s}
+  .card .topline{position:absolute;top:0;left:0;right:0;height:4px;background:var(--accent);opacity:.9}
+
+  .seginfo{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--dim);font-weight:600;letter-spacing:.3px}
+  .seginfo .cnt{font-family:'Kanit'}
+
+  .action{font-family:'Kanit';font-weight:800;font-size:clamp(40px,13vw,62px);line-height:1;margin:14px 0 4px;color:var(--accent);
+    text-shadow:0 0 32px color-mix(in srgb,var(--accent) 45%,transparent)}
+  .effort{color:var(--dim);font-size:14px;font-weight:500;margin-bottom:6px}
+
+  .timer{font-family:'Kanit';font-weight:800;font-size:clamp(86px,30vw,150px);line-height:.9;text-align:center;
+    letter-spacing:-.04em;margin:6px 0 10px;color:var(--txt);font-variant-numeric:tabular-nums}
+  .timer.warn{color:var(--accent);animation:pulse .5s ease-in-out infinite alternate}
+  @keyframes pulse{to{transform:scale(1.04)}}
+
+  .segbar{height:7px;background:#0c0f15;border-radius:99px;overflow:hidden;margin:2px 0 16px}
+  .segbar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s linear}
+
+  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .metric{background:#0e121b;border:1px solid var(--line);border-radius:16px;padding:12px 13px}
+  .metric .mh{font-size:11px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:5px}
+  .metric .mv{font-family:'Kanit';font-weight:700;font-size:30px;margin-top:3px;line-height:1}
+  .metric .mu{font-size:13px;color:var(--dim);font-weight:500;margin-left:4px}
+  .zoneband{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--accent)}
+  .spdrow{display:flex;align-items:center;gap:8px;margin-top:6px}
+  .spdrow button{flex:0 0 auto;width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:#161b26;color:var(--txt);font-family:'Kanit';font-weight:700;font-size:17px;cursor:pointer}
+  .spdrow button:active{transform:scale(.9)}
+  .offnote{font-size:10.5px;color:var(--dim);margin-top:7px}
+  .offnote b{color:var(--accent)}
+
+  .nextup{margin-top:14px;text-align:center;font-size:13px;color:var(--dim)}
+  .nextup b{color:var(--txt);font-family:'Kanit';font-weight:600}
+
+  /* controls */
+  .controls{display:grid;grid-template-columns:1fr 2fr 1fr;gap:10px;margin-top:16px}
+  .ctrl{border:none;border-radius:18px;padding:18px 0;font-family:'Kanit';font-weight:700;font-size:16px;cursor:pointer;color:var(--txt);background:var(--card);border:1px solid var(--line)}
+  .ctrl:active{transform:scale(.97)}
+  .ctrl.main{background:var(--accent);color:#0a0d12;font-size:19px;font-weight:800;border:none}
+  .ctrl.main.run{background:#f43f5e;color:#fff}
+
+  .totalbar{margin-top:14px}
+  .totalbar .tl{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:5px;font-weight:600;letter-spacing:.5px}
+  .totalbar .bar{height:5px;background:#0c0f15;border-radius:99px;overflow:hidden}
+  .totalbar .bar i{display:block;height:100%;background:var(--dim);width:0;transition:width .3s}
+
+  /* rest / done states */
+  .bigmsg{text-align:center;padding:40px 16px}
+  .bigmsg .em{font-size:54px}
+  .bigmsg h2{font-family:'Kanit';font-weight:800;font-size:30px;margin:14px 0 8px}
+  .bigmsg p{color:var(--dim);font-size:14px;line-height:1.6}
+
+  /* drawer */
+  .drawer{position:fixed;inset:0;background:rgba(5,7,11,.7);backdrop-filter:blur(6px);z-index:50;display:none;align-items:flex-end;justify-content:center}
+  .drawer.show{display:flex}
+  .sheet{background:var(--bg2);border:1px solid var(--line);border-radius:24px 24px 0 0;width:100%;max-width:520px;padding:22px 20px calc(28px + env(safe-area-inset-bottom));animation:slideup .25s ease}
+  @keyframes slideup{from{transform:translateY(100%)}}
+  .sheet h3{font-family:'Kanit';font-weight:700;font-size:20px;margin-bottom:4px}
+  .sheet .sub{color:var(--dim);font-size:13px;margin-bottom:18px}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-size:13px;color:var(--dim);margin-bottom:8px;font-weight:600}
+  .stepper{display:flex;align-items:center;gap:14px}
+  .stepper button{width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--txt);font-family:'Kanit';font-weight:700;font-size:22px;cursor:pointer}
+  .stepper .val{font-family:'Kanit';font-weight:700;font-size:26px;min-width:70px;text-align:center}
+  .stepper .val small{font-size:13px;color:var(--dim);font-weight:500}
+  .zones{display:flex;flex-direction:column;gap:7px;margin-top:6px}
+  .zline{display:flex;align-items:center;gap:10px;font-size:13px}
+  .zline .zc{width:12px;height:12px;border-radius:3px}
+  .zline .zn{font-family:'Kanit';font-weight:600;width:54px}
+  .zline .zr{color:var(--dim);margin-left:auto;font-variant-numeric:tabular-nums}
+  .closebtn{width:100%;padding:15px;border:none;border-radius:16px;background:var(--txt);color:#0a0d12;font-family:'Kanit';font-weight:700;font-size:16px;margin-top:6px;cursor:pointer}
+  .tip{font-size:11.5px;color:var(--dim);line-height:1.6;background:#0e121b;border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <b>RUN COACH</b>
+      <span>8-WEEK COMEBACK</span>
+    </div>
+    <button class="iconbtn" id="settingsBtn" aria-label="ตั้งค่า">⚙</button>
+  </div>
+
+  <div class="label">สัปดาห์</div>
+  <div class="scroller" id="weekRow"></div>
+
+  <div class="label">วันในสัปดาห์</div>
+  <div class="daygrid" id="dayRow"></div>
+
+  <div class="stage" id="stage"></div>
+</div>
+
+<!-- settings drawer -->
+<div class="drawer" id="drawer">
+  <div class="sheet">
+    <h3>ตั้งค่า</h3>
+    <div class="sub">ใส่ข้อมูลเพื่อคำนวณโซนหัวใจให้แม่นขึ้น</div>
+
+    <div class="field">
+      <label>อายุ (ปี) — ใช้คำนวณ Max HR</label>
+      <div class="stepper">
+        <button id="ageDown">−</button>
+        <div class="val"><span id="ageVal">35</span><small> ปี</small></div>
+        <button id="ageUp">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>โซนหัวใจของคุณ (Max HR = <span id="hrmax">185</span> bpm)</label>
+      <div class="zones" id="zoneList"></div>
+    </div>
+
+    <div class="tip">⚠️ ฟังร่างกายเป็นหลัก ถ้าเจ็บหน้าอก เวียนหัว หายใจไม่ทัน หรือปวดข้อผิดปกติ — หยุดทันที โซน/ความเร็วเป็นแค่ไกด์ ปรับ +/− ได้ตามจริง</div>
+    <div class="tip">⌚️ Apple Watch: เปิดแอป Workout → เลือก <b style="color:var(--txt)">Indoor Run</b> ก่อนเริ่ม จะเห็นหัวใจสดๆ บนข้อมือ คอยให้ตรงกับช่วง bpm ที่แอปนี้บอก (เลื่อนหน้าจอนาฬิกาดู Heart Rate ได้)</div>
+
+    <button class="closebtn" id="closeDrawer">เสร็จแล้ว</button>
+  </div>
+</div>
+
+<script>
+/* ---------- state ---------- */
+const state = { age:35, offset:0, week:1, day:0, segIdx:0, remain:0, running:false, finished:false };
+let segments = [];
+let tickTimer = null, lastTs = 0, audioCtx = null, wakeLock = null;
+
+/* ---------- zones ---------- */
+const ZC = {1:'#22d3ee',2:'#a3e635',3:'#fbbf24',4:'#fb923c',5:'#f43f5e',0:'#94a3b8'};
+const ZNAME = {1:'โซน 1',2:'โซน 2',3:'โซน 3',4:'โซน 4',5:'โซน 5'};
+const ZPCT = {1:[.50,.60],2:[.60,.70],3:[.70,.80],4:[.80,.90],5:[.90,1.0]};
+const ZTAG = {1:'ฟื้นตัว',2:'แอโรบิก',3:'เทมโป',4:'ขีดจำกัด',5:'สุดแรง'};
+const EFFORT = {1:'สบายมาก คุยได้ทั้งวัน',2:'สบาย คุยเป็นประโยคได้',3:'เริ่มหนัก พูดได้สั้นๆ',4:'หนัก พูดได้ทีละคำ',5:'สุดแรง พูดไม่ออก'};
+function hrmax(){return 220 - state.age;}
+function zoneBpm(z){const m=hrmax();return [Math.round(m*ZPCT[z][0]), Math.round(m*ZPCT[z][1])];}
+
+/* ---------- segment factory ---------- */
+function S(name, sec, speed, incline, zone, opts={}){
+  return {name, sec, speed, incline, zone, moving:opts.moving||false, prep:opts.prep||false};
+}
+const WU = ()=> S('วอร์มอัพ · เดินเร็ว', 300, 5.5, 1, 1, {prep:true});
+const CD = ()=> S('คูลดาวน์ · เดิน', 240, 4.5, 0, 1, {prep:true});
+
+/* repeat helper */
+function reps(arr, n, mk){ for(let i=1;i<=n;i++) arr.push(...mk(i,n)); }
+
+/* ---------- day builders (w = 1..8) ---------- */
+function easyDay(w){
+  const s=[WU()];
+  const cfg=[
+    {n:5,jog:120,sp:6.5,walk:90},{n:5,jog:180,sp:6.5,walk:90},
+    {n:4,jog:300,sp:6.6,walk:60},{n:3,jog:420,sp:6.7,walk:60}
+  ][w-1];
+  if(cfg){
+    reps(s,cfg.n,(i,n)=>[
+      S(`วิ่งเบา (${i}/${n})`, cfg.jog, cfg.sp, 1, 2, {moving:true}),
+      S(`เดินพัก (${i}/${n})`, cfg.walk, 5.5, 1, 1)
+    ]);
+  } else {
+    const cont={5:[1320,6.8],6:[1500,7.0],7:[1680,7.0],8:[1800,7.2]}[w];
+    s.push(S('วิ่งเบาต่อเนื่อง', cont[0], cont[1], 1, 2, {moving:true}));
+  }
+  s.push(CD());
+  return {title:'EASY · วิ่งเบาสร้างฐาน', accent:ZC[2], segments:s};
+}
+function intervalDay(w){
+  const s=[WU(), S('จ็อกอุ่นเครื่อง', 180, 6.3, 1, 2, {moving:true})];
+  const cfg=[
+    {n:6,fast:30,sp:9.0,z:5,rec:90,rsp:5.5,rz:1},
+    {n:6,fast:40,sp:9.3,z:5,rec:80,rsp:5.5,rz:1},
+    {n:5,fast:60,sp:9.3,z:4,rec:90,rsp:6.0,rz:2},
+    {n:6,fast:60,sp:9.6,z:4,rec:90,rsp:6.0,rz:2},
+    {n:5,fast:90,sp:9.3,z:4,rec:90,rsp:6.0,rz:2},
+    {n:6,fast:90,sp:9.6,z:4,rec:90,rsp:6.0,rz:2},
+    {n:5,fast:120,sp:9.3,z:4,rec:120,rsp:6.0,rz:2},
+    {n:6,fast:120,sp:9.6,z:4,rec:90,rsp:6.0,rz:2}
+  ][w-1];
+  reps(s,cfg.n,(i,n)=>[
+    S(`วิ่งเร็ว! (${i}/${n})`, cfg.fast, cfg.sp, 1, cfg.z, {moving:true}),
+    S(`พักช่วง (${i}/${n})`, cfg.rec, cfg.rsp, 1, cfg.rz, {moving:cfg.rsp>5.6})
+  ]);
+  s.push(CD());
+  return {title:'INTERVAL · ฟิตหัวใจสุดๆ', accent:ZC[5], segments:s};
+}
+function recoveryDay(w){
+  const dur={1:1500,2:1500,3:1620,4:1620,5:1680,6:1680,7:1800,8:1800}[w];
+  const sp= w>=5?6.0:5.7;
+  return {title:'RECOVERY · เดินเร็วฟื้นตัว', accent:ZC[1], segments:[
+    S('เดินอุ่นเครื่อง', 180, 5.0, 0, 1, {prep:true}),
+    S('เดินเร็วสบายๆ', dur, sp, 0, 2),
+    S('คูลดาวน์ · เดิน', 180, 4.5, 0, 1, {prep:true})
+  ]};
+}
+function tempoDay(w){
+  const s=[WU(), S('จ็อกอุ่นเครื่อง', 180, 6.3, 1, 2, {moving:true})];
+  if(w===6){
+    s.push(S('เทมโป บล็อก 1', 540, 8.2, 1, 3, {moving:true}));
+    s.push(S('จ็อกพัก', 180, 6.0, 1, 2, {moving:true}));
+    s.push(S('เทมโป บล็อก 2', 540, 8.2, 1, 3, {moving:true}));
+  } else {
+    const cfg={1:[480,7.6],2:[600,7.8],3:[720,7.8],4:[840,8.0],5:[960,8.0],7:[1200,8.2],8:[1440,8.3]}[w];
+    s.push(S('วิ่งเทมโปต่อเนื่อง', cfg[0], cfg[1], 1, 3, {moving:true}));
+  }
+  s.push(CD());
+  return {title:'TEMPO · สร้างความอึด', accent:ZC[3], segments:s};
+}
+function longDay(w){
+  const s=[WU()];
+  if(w===1){ reps(s,6,(i,n)=>[S(`วิ่งเบา (${i}/${n})`,150,6.3,1,2,{moving:true}),S(`เดินพัก (${i}/${n})`,90,5.5,1,1)]); }
+  else if(w===2){ reps(s,6,(i,n)=>[S(`วิ่งเบา (${i}/${n})`,210,6.4,1,2,{moving:true}),S(`เดินพัก (${i}/${n})`,90,5.5,1,1)]); }
+  else { const cfg={3:[1920,6.6],4:[2100,6.6],5:[2280,6.7],6:[2520,6.8],7:[2700,6.8],8:[3000,7.0]}[w];
+    s.push(S('วิ่งยาวต่อเนื่อง', cfg[0], cfg[1], 1, 2, {moving:true})); }
+  s.push(CD());
+  return {title:'LONG · วิ่งยาวสร้างความทน', accent:'#818cf8', segments:s};
+}
+function restDay(){ return {title:'REST · พักฟื้น', accent:ZC[0], rest:true, segments:[]}; }
+
+const DAY_DEFS = [
+  {key:'easy',  abbr:'Easy',  build:easyDay,     color:ZC[2]},
+  {key:'int',   abbr:'Interval',build:intervalDay, color:ZC[5]},
+  {key:'rec',   abbr:'ฟื้นตัว', build:recoveryDay, color:ZC[1]},
+  {key:'tempo', abbr:'Tempo', build:tempoDay,    color:ZC[3]},
+  {key:'easy2', abbr:'Easy',  build:easyDay,     color:ZC[2]},
+  {key:'long',  abbr:'Long',  build:longDay,     color:'#818cf8'},
+  {key:'rest',  abbr:'พัก',   build:restDay,     color:ZC[0]}
+];
+const DAY_TH = ['จ.','อ.','พ.','พฤ.','ศ.','ส.','อา.'];
+
+function currentDay(){ return DAY_DEFS[state.day].build(state.week); }
+function dispSpeed(seg){ const o = seg.moving ? state.offset : 0; return Math.max(0,+(seg.speed+o).toFixed(1)); }
+
+/* ---------- rendering ---------- */
+const $=id=>document.getElementById(id);
+function fmt(t){t=Math.max(0,Math.ceil(t));return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');}
+
+function buildSelectors(){
+  const wr=$('weekRow'); wr.innerHTML='';
+  for(let w=1;w<=8;w++){
+    const c=document.createElement('div');
+    c.className='chip'+(w===state.week?' on':'');
+    c.textContent='สัปดาห์ '+w;
+    c.onclick=()=>{state.week=w; loadDay(); save();};
+    wr.appendChild(c);
+  }
+  const dr=$('dayRow'); dr.innerHTML='';
+  DAY_DEFS.forEach((d,i)=>{
+    const el=document.createElement('div');
+    el.className='day'+(i===state.day?' on':'');
+    if(i===state.day) el.style.setProperty('--accent',d.color);
+    el.innerHTML=`<div class="dot" style="background:${d.color}"></div><div class="dn">${DAY_TH[i]}</div><div class="dt">${d.abbr}</div>`;
+    el.onclick=()=>{state.day=i; loadDay(); save();};
+    dr.appendChild(el);
+  });
+}
+
+function loadDay(){
+  stopTick();
+  const day=currentDay();
+  segments=day.segments;
+  state.segIdx=0; state.running=false; state.finished=false;
+  state.remain=segments.length?segments[0].sec:0;
+  document.documentElement.style.setProperty('--accent', day.accent);
+  buildSelectors();
+  renderStage();
+}
+
+function totalTime(){return segments.reduce((a,s)=>a+s.sec,0);}
+function elapsedBefore(idx){let t=0;for(let i=0;i<idx;i++)t+=segments[i].sec;return t;}
+
+function renderStage(){
+  const stage=$('stage'); const day=currentDay();
+  if(day.rest){
+    stage.innerHTML=`<div class="card"><div class="topline"></div>
+      <div class="bigmsg"><div class="em">😴</div><h2>วันพักฟื้น</h2>
+      <p>วันนี้ให้กล้ามเนื้อซ่อมแซมตัวเอง — การพักคือส่วนหนึ่งของการฝึก<br>ยืดเหยียดเบาๆ / เดินเล่นสบายๆ ได้ พรุ่งนี้กลับมาลุยต่อ 💪</p></div></div>`;
+    return;
+  }
+  if(state.finished){
+    stage.innerHTML=`<div class="card"><div class="topline"></div>
+      <div class="bigmsg"><div class="em">🎉</div><h2>จบเซสชัน!</h2>
+      <p>เยี่ยมมาก ทำครบทุกช่วงแล้ว<br>อย่าลืมยืดเหยียดและดื่มน้ำ</p></div>
+      <div class="controls"><button class="ctrl" id="cReset">รีเซ็ต</button>
+      <button class="ctrl main" id="cAgain">เริ่มใหม่</button>
+      <button class="ctrl" id="cNext">วันถัดไป →</button></div></div>`;
+    $('cReset').onclick=()=>loadDay();
+    $('cAgain').onclick=()=>{loadDay();toggleRun();};
+    $('cNext').onclick=()=>{state.day=(state.day+1)%7; if(state.day===0)state.week=Math.min(8,state.week+1); loadDay(); save();};
+    return;
+  }
+
+  const seg=segments[state.segIdx];
+  const next=segments[state.segIdx+1];
+  const z=seg.zone, zc=seg.prep?ZC[0]:ZC[z];
+  const [lo,hi]=zoneBpm(z);
+  document.documentElement.style.setProperty('--accent', zc);
+  const segProg = seg.sec? (1-state.remain/seg.sec)*100 : 0;
+  const totalEl = elapsedBefore(state.segIdx) + (seg.sec-state.remain);
+  const totalProg = (totalEl/totalTime())*100;
+  const warn = state.running && state.remain<=3.4 && state.remain>0;
+
+  stage.innerHTML=`
+  <div class="card">
+    <div class="topline"></div>
+    <div class="seginfo"><span>${day.title}</span><span class="cnt">ช่วง ${state.segIdx+1}/${segments.length}</span></div>
+    <div class="action">${seg.name.replace(/\s*\(\d+\/\d+\)/,'')} ${(seg.name.match(/\((\d+\/\d+)\)/)||[])[1]?'<span style="font-size:.45em;color:var(--dim);font-weight:600">'+seg.name.match(/\((\d+\/\d+)\)/)[1]+'</span>':''}</div>
+    <div class="effort">${seg.prep?'อุ่นเครื่อง / ผ่อนคลาย':EFFORT[z]}</div>
+    <div class="timer num${warn?' warn':''}" id="timerEl">${fmt(state.remain)}</div>
+    <div class="segbar"><i style="width:${segProg}%"></i></div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="mh">⚡ ความเร็วเป้าหมาย</div>
+        <div class="mv" id="spdVal">${dispSpeed(seg)}<span class="mu">กม./ชม.</span></div>
+        <div class="spdrow">
+          <button id="spdDown">−</button><button id="spdUp">+</button>
+          <span style="font-size:11px;color:var(--dim)">ปรับ ±0.5</span>
+        </div>
+        <div class="offnote">ปรับทั้งแผน: <b>${state.offset>=0?'+':''}${state.offset.toFixed(1)}</b> กม./ชม.</div>
+      </div>
+      <div class="metric">
+        <div class="mh"><span class="zoneband" style="background:${zc}"></span> โซนหัวใจ</div>
+        <div class="mv">${seg.prep?'Z1':'Z'+z}<span class="mu">${seg.prep?'อุ่น':ZTAG[z]}</span></div>
+        <div style="font-family:'Kanit';font-weight:600;font-size:17px;margin-top:5px;color:${zc}">${lo}–${hi} <span style="font-size:12px;color:var(--dim)">bpm</span></div>
+        <div class="offnote">Max HR ${hrmax()} · ${ZNAME[z]}</div>
+      </div>
+    </div>
+
+    ${next?`<div class="nextup">ต่อไป → <b>${next.name.replace(/\s*\(\d+\/\d+\)/,'')}</b> · ${fmt(next.sec)} · ${dispSpeed(next)} กม./ชม.</div>`:`<div class="nextup">ช่วงสุดท้าย 🏁</div>`}
+
+    <div class="controls">
+      <button class="ctrl" id="cSkip">ข้าม ›</button>
+      <button class="ctrl main${(!seg.prep&&z>=4)?' run':''}" id="cMain">${state.running?'⏸ พัก':'▶ เริ่ม'}</button>
+      <button class="ctrl" id="cReset">รีเซ็ต</button>
+    </div>
+
+    <div class="totalbar">
+      <div class="tl"><span>เวลารวมที่ทำไป ${fmt(totalEl)}</span><span>ทั้งหมด ${fmt(totalTime())}</span></div>
+      <div class="bar"><i style="width:${totalProg}%"></i></div>
+    </div>
+  </div>`;
+
+  $('cMain').onclick=toggleRun;
+  $('cSkip').onclick=skipSeg;
+  $('cReset').onclick=()=>loadDay();
+  $('spdUp').onclick=()=>{state.offset=Math.min(4,+(state.offset+0.5).toFixed(1));save();renderStage();};
+  $('spdDown').onclick=()=>{state.offset=Math.max(-3,+(state.offset-0.5).toFixed(1));save();renderStage();};
+}
+
+/* ---------- timer engine ---------- */
+function toggleRun(){
+  if(!segments.length) return;
+  state.running=!state.running;
+  if(state.running){ initAudio(); requestWake(); lastTs=performance.now(); tickTimer=setInterval(tick,200); }
+  else { stopTick(); releaseWake(); }
+  renderStage();
+}
+function stopTick(){ if(tickTimer){clearInterval(tickTimer);tickTimer=null;} state.running=false; }
+function tick(){
+  const now=performance.now(); const dt=(now-lastTs)/1000; lastTs=now;
+  const prev=state.remain;
+  state.remain-=dt;
+  // countdown beeps 3-2-1
+  if(prev>3 && state.remain<=3) beep(880,90);
+  else if(Math.ceil(prev)!==Math.ceil(state.remain) && state.remain<=3 && state.remain>0) beep(880,90);
+  if(state.remain<=0){ advance(); return; }
+  // light update
+  const t=$('timerEl'); if(t){t.textContent=fmt(state.remain); t.classList.toggle('warn', state.remain<=3.4);}
+  const sb=document.querySelector('.segbar i'); if(sb){const seg=segments[state.segIdx]; sb.style.width=((1-state.remain/seg.sec)*100)+'%';}
+}
+function advance(){
+  if(state.segIdx >= segments.length-1){
+    stopTick(); releaseWake(); state.finished=true; beepDone(); renderStage(); return;
+  }
+  state.segIdx++; state.remain=segments[state.segIdx].sec;
+  const z=segments[state.segIdx].zone, prep=segments[state.segIdx].prep;
+  beep(prep?660:(z>=4?1046:784), 220, prep?0.18:0.28);
+  if(navigator.vibrate) navigator.vibrate(z>=4?[120,60,120]:80);
+  renderStage();
+}
+function skipSeg(){ const wasRun=state.running; stopTick(); if(state.segIdx>=segments.length-1){state.finished=true;renderStage();return;} state.segIdx++; state.remain=segments[state.segIdx].sec; renderStage(); if(wasRun){toggleRun();} }
+
+/* ---------- audio ---------- */
+function initAudio(){ if(!audioCtx){ try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume(); }
+function beep(freq,dur,vol=0.2){ if(!audioCtx)return; try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=freq;g.gain.value=vol;o.connect(g);g.connect(audioCtx.destination);const t=audioCtx.currentTime;o.start(t);g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.0001,t+dur/1000);o.stop(t+dur/1000+0.02);}catch(e){} }
+function beepDone(){ [523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,200,0.25),i*180)); }
+
+/* ---------- wake lock ---------- */
+async function requestWake(){ try{ if('wakeLock' in navigator){ wakeLock=await navigator.wakeLock.request('screen'); } }catch(e){} }
+function releaseWake(){ try{ if(wakeLock){wakeLock.release();wakeLock=null;} }catch(e){} }
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&state.running) requestWake(); });
+
+/* ---------- settings drawer ---------- */
+function renderZones(){
+  $('hrmax').textContent=hrmax();
+  const list=$('zoneList'); list.innerHTML='';
+  for(let z=1;z<=5;z++){ const [lo,hi]=zoneBpm(z);
+    const r=document.createElement('div');r.className='zline';
+    r.innerHTML=`<span class="zc" style="background:${ZC[z]}"></span><span class="zn">Z${z}</span><span>${ZTAG[z]}</span><span class="zr">${lo}–${hi} bpm</span>`;
+    list.appendChild(r);
+  }
+}
+$('settingsBtn').onclick=()=>{ $('ageVal').textContent=state.age; renderZones(); $('drawer').classList.add('show'); };
+$('closeDrawer').onclick=()=>{ $('drawer').classList.remove('show'); renderStage(); save(); };
+$('drawer').onclick=e=>{ if(e.target===$('drawer')){$('drawer').classList.remove('show');renderStage();save();} };
+$('ageUp').onclick=()=>{ state.age=Math.min(90,state.age+1); $('ageVal').textContent=state.age; renderZones(); };
+$('ageDown').onclick=()=>{ state.age=Math.max(12,state.age-1); $('ageVal').textContent=state.age; renderZones(); };
+
+/* ---------- persistence (localStorage w/ in-memory fallback) ---------- */
+const mem={};
+function save(){ const d={age:state.age,offset:state.offset,week:state.week,day:state.day};
+  try{ localStorage.setItem('runcoach:cfg', JSON.stringify(d)); }catch(e){ mem.cfg=d; }
+}
+function load(){
+  try{ const r=localStorage.getItem('runcoach:cfg'); if(r){Object.assign(state,JSON.parse(r));} }
+  catch(e){ if(mem.cfg)Object.assign(state,mem.cfg); }
+}
+
+/* ---------- service worker (offline / Add to Home Screen) ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
+
+/* ---------- init ---------- */
+(function(){ load(); loadDay(); })();
+</script>
+</body>
+</html>
